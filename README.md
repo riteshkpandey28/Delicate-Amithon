@@ -4,4 +4,4 @@
 
 # SYSTEM FLOW
 
-<img height="250em" src="./static/assets/images/delicate.png" alt="stupiloid-coder"/>
+<img height="250em" src="./static/assets/images/delicate2.png" alt="stupiloid-coder"/>
