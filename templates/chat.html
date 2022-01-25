@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room | Delicate</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+        integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/counsellor.css') }}">
+
+    <style>
+        .main {
+            margin: 180px;
+            margin-bottom: 0;
+            padding: 50px;
+            border-radius: 50px;
+            background-color: #4b8ef1;
+            min-height: 70vh;
+        }
+
+        .chatwindow {
+            position: absolute;
+            left: 0;
+            right: 0;
+            width: 100%;
+        }
+
+        .chatwindow textarea {
+            padding: 25px;
+            resize: none;
+            width: 70%;
+            margin-bottom: 0;
+            font-family: 'Arvo', serif;
+            font-size: 1.1rem;
+        }
+
+        .chatwindow form {
+            margin-top: 0;
+        }
+
+        .chatwindow input {
+            padding: 3px;
+            width: 50%;
+        }
+
+        @media screen and (max-width:700px) {
+            .main {
+                margin-left: 20px;
+                padding: 50px;
+                border-radius: 50px;
+                background-color: #4b8ef1;
+                min-height: 70vh;
+                width: 90%;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <header class="fixed-top">
+        <div class="text-center container">
+            <div class="row">
+                <div class="align-self-center col-lg-5 img">
+                    <img src="{{ url_for('static', filename='assets/images/logo.png') }}" alt="">
+                </div>
+                <div class="align-self-center col content">
+                    <h3>Chat Room</h3>
+                </div>
+                <div class="align-self-center col logout">
+                    <button type="button" class="btn btn-danger" onclick=leave_room()><i
+                            class="fas fa-sign-out-alt"></i> Leave this Chat</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main text-center">
+        <div class="chatwindow">
+            <div id="messages"></div>
+            <textarea id="chat" rows="10" placeholder="No messages yet. Start one..." readonly></textarea><br /><br />
+            <br />
+            <form id="message_input_form">
+                <input type="text" id="message_input" placeholder="Enter your message here" />
+                <button type="submit" id="send" class="btn btn-success">Send</button>
+            </form>
+        </div>
+    </div>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+    <script>
+        const socket = io.connect("http://127.0.0.1:5000");
+
+        socket.on('connect', function () {
+            socket.emit('join_room', {
+                username: "{{ username }}",
+                room: "{{ room }}"
+            });
+
+            let message_input = document.getElementById('message_input');
+
+            document.getElementById('message_input_form').onsubmit = function (e) {
+                e.preventDefault();
+                let message = message_input.value.trim();
+                if (message.length) {
+                    socket.emit('send_message', {
+                        username: "{{ username }}",
+                        room: "{{ room }}",
+                        message: message
+                    })
+                }
+                message_input.value = '';
+                message_input.focus();
+            }
+        });
+
+        window.onbeforeunload = function () {
+            socket.emit('leave_room', {
+                username: "{{ username }}",
+                room: "{{ room }}"
+            })
+        };
+
+        socket.on('receive_message', function (data) {
+            console.log(data);
+            const newNode = document.createElement('div');
+            newNode.innerHTML = `<b>${data.username}:&nbsp;</b> ${data.message}`;
+            // document.getElementById('messages').append(newNode);
+            document.getElementById('chat').value = document.getElementById('chat').value + `${data.username}: ${data.message} \n`;
+
+        });
+
+        function leave_room() {
+            socket.emit('left', {}, function () {
+                socket.disconnect();
+                // go back to the login page
+                window.location.href = "{{ url_for('index') }}";
+            });
+        }
+
+
+        socket.on('join_room_announcement', function (data) {
+            console.log(data);
+            if (data.username !== "{{ username }}") {
+                const newNode = document.createElement('div');
+                newNode.innerHTML = `<b>${data.username}</b> has joined the room`;
+                document.getElementById('messages').appendChild(newNode);
+            }
+        });
+
+        socket.on('leave_room_announcement', function (data) {
+            console.log(data);
+            const newNode = document.createElement('div');
+            newNode.innerHTML = `<b>${data.username}</b> has left the room`;
+            document.getElementById('messages').appendChild(newNode);
+        });
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

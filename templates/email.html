@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delicate | Appointment Booked</title>
+
+    <style>
+        .container {
+            margin: 10px;
+            padding: 30px;
+            background-color: antiquewhite;
+        }
+
+        a {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Dear {{username}},</h1>
+        <h2>Your Appointment has been scheduled</h2>
+        <h4>Please find the details below :</h4>
+        <h3>
+            <b>Date : </b> {{date}} <br>
+            <b>Time : </b> {{time}} IST<br>
+            <b>Counsellor Name : </b> {{counsellorname}} <br>
+            <b>Room ID : </b> {{roomid}} <br>
+        </h3>
+        <h4>
+            <a href="http://127.0.0.1:5000/chat?username={{username}}&room={{roomid}}">Join Conversation</a>
+        </h4>
+
+        <h4>Regards,
+            Team : ALL TOO WELL | Delicate
+        </h4>
+    </div>
+
+</body>
+
+</html>
